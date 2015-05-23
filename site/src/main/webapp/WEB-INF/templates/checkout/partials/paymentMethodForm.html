@@ -49,7 +49,7 @@
                 <label for="paymentMethod_cc"><span th:text="#{cart.creditCard}">Credit Card</span></label>
             </dt>
             <dd>
-                <blc:transparent_credit_card_form paymentRequestDTO="${paymentRequestDTO}"
+                    <blc:transparent_credit_card_form paymentRequestDTO="${paymentRequestDTO}"
                                                   action="#"
                                                   role="form"
                                                   method="POST">
@@ -139,8 +139,19 @@
 
             </dd>
             <dt>
-                <input type="radio" name="paymentMethod" value="paypal" id="paymentMethod_paypal" />
-                <label for="paymentMethod_paypal"><span th:text="#{cart.payPal}">PayPal</span></label>
+                <!--<input type="radio" name="paymentMethod" value="paypal" id="paymentMethod_paypal" />-->
+                <!--<label for="paymentMethod_paypal"><span th:text="#{cart.payPal}">PayPal</span></label>-->
+
+                <!--<form blc:braintree_payment_hosted_action="${paymentRequestDTO}" complete_checkout="${false}" method="POST">-->
+                    <!--<input type="radio" name="paymentMethod" value="braintree" id="paymentMethod_braintree" />-->
+                    <!--<input type="hidden" name="TRANSACTION_AMT" th:value="${cart.total}"/>-->
+                    <!--<input type="hidden" name="ORDER_ID" th:value="${cart.id}"/>-->
+                    <!--<input type="hidden" name="COMPLETE_CHECKOUT_ON_CALLBACK" value="false"/>-->
+                    <!--&lt;!&ndash;<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif" align="left" style="margin-right:7px;" alt="Submit Form" />&ndash;&gt;-->
+                    <!--<button type="submit">-->
+                        <!--<img src="https://s3.amazonaws.com/braintree-badges/braintree-badge-dark.png" width="164px" height ="44px" border="0" style="margin-right:7px;" alt="Submit Form"/>-->
+                    <!--</button>-->
+                <!--</form>-->
             </dt>
             <dd>
                 <div id="paypalfields">

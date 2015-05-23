@@ -18,17 +18,16 @@
  * #L%
  */
 
-package com.mycompany.sample.vendor.nullPaymentGateway.service.payment;
-
-import org.broadleafcommerce.common.payment.PaymentGatewayType;
+package com.mycompany.sample.vendor.braintree.service.payment;
 
 /**
  * @author Elbert Bautista (elbertbautista)
  */
-public class NullPaymentGatewayType extends PaymentGatewayType {
+public interface BraintreePaymentGatewayConstants {
 
-    public static final PaymentGatewayType NULL_GATEWAY  = new PaymentGatewayType("NULL_GATEWAY", "Null Payment Gateway Implementation");
-    public static final PaymentGatewayType NULL_HOSTED_GATEWAY  = new PaymentGatewayType("NULL_HOSTED_GATEWAY", "Null Hosted Payment Gateway Implementation");
+  String GATEWAY_CONTEXT_KEY = "braintree-checkout";
 
+  String PROCESS = "braintree-checkout/process";
 
+  String RETURN = "braintree-checkout/return";
 }
