@@ -77,13 +77,16 @@ public class BraintreePaymentGatewayTransactionServiceImpl implements PaymentGat
           StringUtils.isNotBlank(creditCardDTO.getCreditCardExpYear())))) {
 
       boolean validCard = false;
-      if (visaValidator.isValid(creditCardDTO.getCreditCardNum())){
+      if (visaValidator.isValid(creditCardDTO.getCreditCardNum())) {
         validCard = true;
-      } else if (amexValidator.isValid(creditCardDTO.getCreditCardNum())) {
+      }
+      else if (amexValidator.isValid(creditCardDTO.getCreditCardNum())) {
         validCard = true;
-      } else if (mcValidator.isValid(creditCardDTO.getCreditCardNum())) {
+      }
+      else if (mcValidator.isValid(creditCardDTO.getCreditCardNum())) {
         validCard = true;
-      } else if (discoverValidator.isValid(creditCardDTO.getCreditCardNum())) {
+      }
+      else if (discoverValidator.isValid(creditCardDTO.getCreditCardNum())) {
         validCard = true;
       }
 
@@ -92,7 +95,8 @@ public class BraintreePaymentGatewayTransactionServiceImpl implements PaymentGat
       String[] parsedDate = null;
       if (StringUtils.isNotBlank(creditCardDTO.getCreditCardExpDate())) {
         parsedDate = creditCardDTO.getCreditCardExpDate().split("/");
-      } else {
+      }
+      else {
         parsedDate = new String[2];
         parsedDate[0] = creditCardDTO.getCreditCardExpMonth();
         parsedDate[1] = creditCardDTO.getCreditCardExpYear();
@@ -102,11 +106,12 @@ public class BraintreePaymentGatewayTransactionServiceImpl implements PaymentGat
         String expMonth = parsedDate[0];
         String expYear = parsedDate[1];
         try {
-          DateTime expirationDate = new DateTime(Integer.parseInt("20"+expYear), Integer.parseInt(expMonth), 1, 0, 0);
+          DateTime expirationDate = new DateTime(Integer.parseInt("20" + expYear), Integer.parseInt(expMonth), 1, 0, 0);
           expirationDate = expirationDate.dayOfMonth().withMaximumValue();
           validDate = expirationDate.isAfterNow();
           validDateFormat = true;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
           //invalid date format
         }
       }
@@ -115,17 +120,19 @@ public class BraintreePaymentGatewayTransactionServiceImpl implements PaymentGat
         responseDTO.amount(new Money(0))
           .rawResponse("cart.payment.expiration.invalid")
           .successful(false);
-      } else if (!validCard) {
+      }
+      else if (!validCard) {
         responseDTO.amount(new Money(0))
           .rawResponse("cart.payment.card.invalid")
           .successful(false);
-      } else {
+      }
+      else {
         responseDTO.amount(new Money(requestDTO.getTransactionTotal()))
           .rawResponse("Success!")
           .successful(true);
       }
-
-    } else {
+    }
+    else {
       responseDTO.amount(new Money(0))
         .rawResponse("cart.payment.invalid")
         .successful(false);

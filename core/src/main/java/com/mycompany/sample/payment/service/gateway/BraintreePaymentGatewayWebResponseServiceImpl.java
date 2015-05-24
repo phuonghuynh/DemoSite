@@ -1,5 +1,6 @@
 package com.mycompany.sample.payment.service.gateway;
 
+import com.braintreegateway.*;
 import com.mycompany.sample.vendor.braintree.service.payment.BraintreePaymentGatewayType;
 import com.mycompany.sample.vendor.nullPaymentGateway.service.payment.NullPaymentGatewayConstants;
 import org.apache.commons.lang.ArrayUtils;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**

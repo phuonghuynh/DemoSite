@@ -1,11 +1,12 @@
 package com.mycompany.sample.vendor.braintreePaymentGateway.web.controller;
 
+import com.braintreegateway.*;
 import com.mycompany.sample.payment.service.gateway.BraintreePaymentGatewayConfigurationImpl;
-import com.mycompany.sample.payment.service.gateway.NullPaymentGatewayConfiguration;
 import com.mycompany.sample.vendor.nullPaymentGateway.service.payment.NullPaymentGatewayConstants;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.CreditCardValidator;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,6 +26,15 @@ public class BraintreePaymentGatewayProcessorController {
 
   @Resource(name = "blBraintreePaymentGatewayConfiguration")
   protected BraintreePaymentGatewayConfigurationImpl paymentGatewayConfiguration;
+
+  @Value("${braintree.merchantId}")
+  private String braintreeMerchantId;
+
+  @Value("${braintree.publicKey}")
+  private String braintreePublicKey;
+
+  @Value("${braintree.privateKey}")
+  private String braintreePrivateKey;
 
   @ResponseBody
   @RequestMapping(value = "/braintree-checkout/process", method = RequestMethod.POST)
@@ -234,6 +245,56 @@ public class BraintreePaymentGatewayProcessorController {
       resultSuccess = "false";
     }
 
+    //TODO: make this braintree payment gateway integration DEMO to be PRODUCTION
+    if ("true".equals(resultSuccess)) {
+      BraintreeGateway gateway = new BraintreeGateway(
+        Environment.SANDBOX,
+        braintreeMerchantId, braintreePublicKey, braintreePrivateKey
+      );
+
+      TransactionRequest braintreeRequest = new TransactionRequest()
+        .amount(new BigDecimal(transactionAmount))
+        .creditCard()
+        .number(creditCardNumber)
+        .expirationDate(creditCardExpDate)
+        .cvv(creditCardCVV).cardholderName(creditCardName)
+        .done();
+
+      Result<Transaction> result = gateway.transaction().sale(braintreeRequest);
+
+      gatewayTransactionId = "";
+      if (result.isSuccess()) {
+        Transaction transaction = result.getTarget();
+        System.out.println("Success!: " + transaction.getId());
+        gatewayTransactionId = transaction.getId();
+        resultMessage = "Success!";
+        resultSuccess = "true";
+      }
+      else if (result.getTransaction() != null) {
+        Transaction transaction = result.getTransaction();
+        System.out.println("Error processing transaction:");
+        System.out.println("  Status: " + transaction.getStatus());
+        System.out.println("  Code: " + transaction.getProcessorResponseCode());
+        System.out.println("  Text: " + transaction.getProcessorResponseText());
+
+        transactionAmount = "0";
+        resultMessage = transaction.getProcessorResponseCode() + ": " + transaction.getProcessorResponseText();
+        resultSuccess = "false";
+      }
+      else {
+        for (ValidationError error : result.getErrors().getAllDeepValidationErrors()) {
+          System.out.println("Attribute: " + error.getAttribute());
+          System.out.println("  Code: " + error.getCode());
+          System.out.println("  Message: " + error.getMessage());
+        }
+
+        transactionAmount = "0";
+        resultMessage = "cart.payment.invalid";
+        resultSuccess = "false";
+      }
+    }
+
+
     StringBuffer response = new StringBuffer();
     response.append("<!DOCTYPE HTML>");
     response.append("<!--[if lt IE 7]> <html class=\"no-js lt-ie9 lt-ie8 lt-ie7\" lang=\"en\"> <![endif]-->");
@@ -248,12 +309,12 @@ public class BraintreePaymentGatewayProcessorController {
       + "\" value=\"" + transactionAmount + "\"/>");
     response.append("<input type=\"hidden\" name=\"" + NullPaymentGatewayConstants.ORDER_ID
       + "\" value=\"" + orderId + "\"/>");
-    response.append("<input type=\"hidden\" name=\"" + NullPaymentGatewayConstants.GATEWAY_TRANSACTION_ID
-      + "\" value=\"" + gatewayTransactionId + "\"/>");
     response.append("<input type=\"hidden\" name=\"" + NullPaymentGatewayConstants.RESULT_MESSAGE
       + "\" value=\"" + resultMessage + "\"/>");
     response.append("<input type=\"hidden\" name=\"" + NullPaymentGatewayConstants.RESULT_SUCCESS
       + "\" value=\"" + resultSuccess + "\"/>");
+    response.append("<input type=\"hidden\" name=\"" + NullPaymentGatewayConstants.GATEWAY_TRANSACTION_ID
+      + "\" value=\"" + gatewayTransactionId + "\"/>");
     response.append("<input type=\"hidden\" name=\"" + NullPaymentGatewayConstants.BILLING_FIRST_NAME
       + "\" value=\"" + billingFirstName + "\"/>");
     response.append("<input type=\"hidden\" name=\"" + NullPaymentGatewayConstants.BILLING_LAST_NAME
